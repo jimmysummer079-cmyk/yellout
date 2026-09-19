@@ -1,0 +1,6 @@
+{
+  "name": "中年情绪发泄树洞",
+  "description": "专为中年群体打造的极简、私密、无社交负担的语音情绪发泄树洞与同温层互慰社区",
+  "requestFramePermissions": ["microphone"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
