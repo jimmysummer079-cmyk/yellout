@@ -4,6 +4,30 @@
 
 [English](./README_EN.md) | [中文](./README.md)
 
+<div align="center">
+  <img src="./public/yellout-logo.jpg" width="180" height="180" alt="YellOut Official Logo" style="border-radius: 24px; box-shadow: 0 10px 30px rgba(249, 115, 22, 0.25);" />
+  <p><em>"Break the silence, roar into the void." — Acoustic Desensitization × Zero Social Burden × Pure Privacy</em></p>
+</div>
+
+---
+
+## 🎨 Brand Identity & Color Palette
+
+- **Brand Logo**: Centered on the dynamic energy of **acoustic soundwaves breaking through silence** and the **restorative glow of ember warmth**, symbolizing liberation from relentless career and family pressures.
+- **Color Palette**:
+  - 🟠 **Ember Orange (`#F97316`)**: Cathartic release, inner fire, and emotional rebirth.
+  - ⚫ **Obsidian Dark (`#070B14`)**: Solitary sanctuary of sitting parked in the car late at night.
+  - 🟡 **Warm Amber (`#F59E0B`)**: Non-verbal empathy, silent solidarity, and warm presence.
+  - 🔘 **Void Slate (`#1E293B`)**: Complete anonymity, digital ash, and clean slate reset.
+
+---
+
+## 📊 Product Architecture & Workflow
+
+<div align="center">
+  <img src="./public/yellout-chart.jpg" width="850" alt="YellOut Product Architecture Diagram" style="border-radius: 12px; border: 1px solid #334155;" />
+</div>
+
 ---
 
 ## 💡 Background & Philosophy

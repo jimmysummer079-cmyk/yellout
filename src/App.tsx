@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { ShieldCheck, HeartHandshake, PhoneCall, HelpCircle, Smartphone, Monitor, CloudRain } from 'lucide-react';
+import { ShieldCheck, HeartHandshake, PhoneCall, HelpCircle, Smartphone, Monitor, CloudRain, Layers } from 'lucide-react';
 import { VentPost } from './types';
 import { INITIAL_POSTS } from './utils/mockData';
 import { generateCodename } from './utils/codenames';
@@ -9,8 +9,10 @@ import { NavBar } from './components/NavBar';
 import { PrivacyBanner } from './components/PrivacyBanner';
 import { CrisisModal } from './components/CrisisModal';
 import { CustomTagModal } from './components/CustomTagModal';
+import { ProductChartModal } from './components/ProductChartModal';
 import { haptic } from './utils/haptics';
 import { AmbientRainSound } from './utils/audioDsp';
+import yelloutLogoImg from './assets/images/yellout_logo_1789808350358.jpg';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<'vent' | 'plaza'>('vent');
@@ -19,6 +21,7 @@ export default function App() {
   const [customTags, setCustomTags] = useState<string[]>(['房贷']);
   const [isCrisisModalOpen, setIsCrisisModalOpen] = useState<boolean>(false);
   const [isCustomTagModalOpen, setIsCustomTagModalOpen] = useState<boolean>(false);
+  const [isChartModalOpen, setIsChartModalOpen] = useState<boolean>(false);
   const [isMobileFrame, setIsMobileFrame] = useState<boolean>(true);
   const [isRainActive, setIsRainActive] = useState<boolean>(false);
 
@@ -72,18 +75,49 @@ export default function App() {
   return (
     <div className="min-h-screen bg-[#070b14] text-slate-100 flex flex-col items-center justify-start selection:bg-amber-500/30 selection:text-amber-200">
       {/* 桌面端工具栏（画幅切换与危机求助快捷口） */}
-      <header className="w-full bg-slate-950/80 border-b border-slate-800/80 px-4 py-2 flex items-center justify-between text-xs z-30">
+      <header className="w-full bg-slate-950/80 border-b border-slate-800/80 px-3 sm:px-4 py-2 flex items-center justify-between text-xs z-30">
         <div className="flex items-center gap-2">
-          <div className="w-2.5 h-2.5 rounded-full bg-amber-500 shadow-sm shadow-amber-500/50" />
-          <h1 className="font-bold text-slate-200 tracking-wide text-sm">
+          <button
+            onClick={() => {
+              haptic.triggerTick();
+              setIsChartModalOpen(true);
+            }}
+            className="flex items-center gap-1.5 p-1 -ml-1 rounded-lg hover:bg-slate-800/80 transition-colors group"
+            title="查看 YellOut 官方品牌 Logo 与产品全景架构图表"
+          >
+            <img
+              src={yelloutLogoImg}
+              alt="YellOut Logo"
+              className="w-6 h-6 rounded-md object-cover border border-amber-500/50 shadow-sm shadow-amber-500/30 group-hover:scale-105 transition-transform"
+              referrerPolicy="no-referrer"
+            />
+            <span className="font-bold text-slate-100 tracking-wide text-xs group-hover:text-amber-300 transition-colors">
+              YellOut
+            </span>
+          </button>
+          <span className="text-slate-600 hidden sm:inline">/</span>
+          <h1 className="font-semibold text-slate-200 tracking-wide text-xs hidden sm:inline">
             中年情绪发泄树洞
           </h1>
-          <span className="text-[11px] text-slate-400 hidden sm:inline">
-            | 30-55岁无负担情绪出海口
+          <span className="text-[11px] text-slate-500 hidden lg:inline">
+            | 30-55岁无负担情绪避难所
           </span>
         </div>
 
-        <div className="flex items-center gap-2 sm:gap-3">
+        <div className="flex items-center gap-1.5 sm:gap-2.5">
+          {/* 品牌图表与架构按钮 */}
+          <button
+            onClick={() => {
+              haptic.triggerTick();
+              setIsChartModalOpen(true);
+            }}
+            className="flex items-center gap-1 px-2 py-1 rounded-md bg-slate-900 hover:bg-slate-800 border border-slate-800 hover:border-amber-500/40 text-amber-300 font-medium transition-colors"
+            title="查看产品全景图表与官方 Logo"
+          >
+            <Layers className="w-3.5 h-3.5 text-amber-400" />
+            <span className="hidden sm:inline">产品图表 & Logo</span>
+          </button>
+
           {/* 车窗夜雨沉浸底噪开关 */}
           <button
             onClick={toggleAmbientRain}
@@ -185,6 +219,11 @@ export default function App() {
         isOpen={isCustomTagModalOpen}
         onClose={() => setIsCustomTagModalOpen(false)}
         onAddTag={handleAddCustomTag}
+      />
+
+      <ProductChartModal
+        isOpen={isChartModalOpen}
+        onClose={() => setIsChartModalOpen(false)}
       />
     </div>
   );
