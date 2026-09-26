@@ -263,9 +263,21 @@ repliesRouter.get('/:id/audio', requireAuth, (req, res) => {
 });
 
 function mimeToExt(mime: string): string {
-  if (mime.includes('mp4') || mime.includes('m4a')) return 'm4a';
-  if (mime.includes('ogg')) return 'ogg';
-  if (mime.includes('mpeg') || mime.includes('mp3')) return 'mp3';
-  if (mime.includes('wav')) return 'wav';
+  const m = (mime || '').toLowerCase();
+  // iOS / Expo HIGH_QUALITY recordings are typically audio/mp4 or audio/m4a (AAC)
+  if (m.includes('aac') && !m.includes('mp4') && !m.includes('m4a')) return 'aac';
+  if (
+    m.includes('mp4') ||
+    m.includes('m4a') ||
+    m.includes('x-m4a') ||
+    m.includes('aac') ||
+    m === 'audio/caf'
+  ) {
+    return 'm4a';
+  }
+  if (m.includes('ogg') || m.includes('opus')) return 'ogg';
+  if (m.includes('mpeg') || m.includes('mp3')) return 'mp3';
+  if (m.includes('wav') || m.includes('wave')) return 'wav';
+  if (m.includes('3gpp') || m.includes('3gp')) return '3gp';
   return 'webm';
 }
