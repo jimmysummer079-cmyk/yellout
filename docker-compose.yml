@@ -1,0 +1,17 @@
+services:
+  yellout:
+    build: .
+    ports:
+      - "8787:8787"
+    environment:
+      PORT: 8787
+      DATABASE_PATH: /data/yellout.db
+      UPLOAD_DIR: /data/uploads
+      WEB_DIST: /app/apps/web/dist
+      # GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+    volumes:
+      - yellout-data:/data
+    restart: unless-stopped
+
+volumes:
+  yellout-data:

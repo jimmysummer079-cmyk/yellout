@@ -1,0 +1,87 @@
+@import "tailwindcss";
+
+@theme {
+  --color-ember: #f97316;
+  --color-ember-soft: #fb923c;
+  --color-obsidian: #070b14;
+  --color-obsidian-raised: #0b1220;
+  --color-amber: #f59e0b;
+  --color-amber-soft: #fbbf24;
+  --color-void: #1e293b;
+  --color-void-border: #334155;
+  --color-mist: #94a3b8;
+  --color-snow: #e2e8f0;
+  --font-display: "ZCOOL XiaoWei", "Noto Serif SC", serif;
+  --font-body: "Noto Sans SC", "PingFang SC", "Hiragino Sans GB", sans-serif;
+  --spacing-nav: 4.5rem;
+}
+
+@layer base {
+  :root {
+    color-scheme: dark;
+  }
+
+  html,
+  body,
+  #root {
+    min-height: 100%;
+  }
+
+  body {
+    margin: 0;
+    background:
+      radial-gradient(1200px 600px at 50% -10%, rgba(249, 115, 22, 0.12), transparent 55%),
+      radial-gradient(800px 400px at 100% 20%, rgba(245, 158, 11, 0.06), transparent 50%),
+      linear-gradient(180deg, #0b1220 0%, #070b14 45%, #05080f 100%);
+    background-attachment: fixed;
+    color: var(--color-snow);
+    font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
+    touch-action: manipulation;
+  }
+
+  ::selection {
+    background: rgba(249, 115, 22, 0.35);
+    color: #fff7ed;
+  }
+
+  button,
+  a {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  :focus-visible {
+    outline: 2px solid rgba(245, 158, 11, 0.8);
+    outline-offset: 2px;
+  }
+}
+
+@layer utilities {
+  .font-display {
+    font-family: var(--font-display);
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #334155;
+  border-radius: 999px;
+}
