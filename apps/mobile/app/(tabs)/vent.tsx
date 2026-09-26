@@ -179,21 +179,11 @@ export default function VentScreen() {
   ).current;
 
   const addCustom = () => {
-    Alert.prompt?.(
-      '自定义倾诉对象',
-      `最多 ${MAX_TARGET_TAG_LEN} 字`,
-      (text) => {
-        const tag = (text || '').trim().slice(0, MAX_TARGET_TAG_LEN);
-        if (!tag) return;
-        if (!customTags.includes(tag)) setCustomTags((p) => [...p, tag]);
-        setTarget(tag);
-      }
-    );
-    // Android Alert.prompt is iOS-only — fallback
-    if (!Alert.prompt) {
-      const tag = '房贷';
-      setTarget(tag);
-    }
+    const next = ['加班', '学费', '体检', '通勤'].find((t) => !customTags.includes(t));
+    const tag = (next || '心事').slice(0, MAX_TARGET_TAG_LEN);
+    if (!customTags.includes(tag)) setCustomTags((p) => [...p, tag]);
+    setTarget(tag);
+    void Haptics.selectionAsync();
   };
 
   return (

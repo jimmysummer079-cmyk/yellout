@@ -11,13 +11,15 @@
     "dev": "npm run dev:api & npm run dev:web & wait",
     "dev:web": "npm run dev --workspace=@yellout/web",
     "dev:api": "npm run build --workspace=@yellout/shared && npm run dev --workspace=@yellout/api",
+    "dev:mobile": "npm run build --workspace=@yellout/shared && npm run start --workspace=@yellout/mobile",
     "build": "npm run build --workspace=@yellout/shared && npm run build --workspace=@yellout/api && npm run build --workspace=@yellout/web",
     "start": "npm run start --workspace=@yellout/api",
     "lint": "npm run lint --workspaces --if-present",
     "typecheck": "npm run typecheck --workspaces --if-present",
     "test": "npm run test --workspace=@yellout/api",
+    "test:mobile": "npm run test --workspace=@yellout/mobile",
     "test:e2e": "playwright test -c e2e/playwright.config.ts",
-    "test:all": "npm test && npm run test:e2e",
+    "test:all": "npm test && npm run test:mobile && npm run test:e2e",
     "clean": "npm run clean --workspaces --if-present && rm -rf node_modules"
   },
   "engines": {

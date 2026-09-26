@@ -29,7 +29,7 @@ yellout/
 ├── apps/
 │   ├── web/          # Vite + React 19 + Tailwind 4（中文 UI）
 │   ├── api/          # Express + Node SQLite（匿名会话 / 倾诉 / 互动）
-│   └── mobile/       # 预留 Expo 客户端
+│   └── mobile/       # Expo（React Native）iOS / Android 客户端
 ├── packages/shared/  # 共享类型与常量
 ├── e2e/              # Playwright 端到端测试
 ├── docs/API.md
