@@ -16,7 +16,8 @@ declare global {
 }
 
 export function hashToken(token: string): string {
-  return crypto.createHash('sha256').update(token).digest('hex');
+  const pepper = process.env.SESSION_SECRET || '';
+  return crypto.createHash('sha256').update(`${pepper}:${token}`).digest('hex');
 }
 
 export function createToken(): string {

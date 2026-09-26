@@ -81,19 +81,42 @@ npm run build
 
 ## 部署到 Render（推荐）
 
-仓库根目录已提供 [`render.yaml`](./render.yaml) Blueprint：
+仓库根目录的 [`render.yaml`](./render.yaml) 定义**单个 Docker Web Service** + **1GB 持久磁盘**（SQLite 与音频文件）。
+
+### 为何是 `starter` 计划
+
+Render **持久磁盘只能挂在付费实例上**（最小一般为 `starter`）。免费 Web Service **不能**挂盘；若改用免费档，需自行换成 Render Postgres + 对象存储（当前 Blueprint 未走这条路径）。
+
+### 精确步骤
 
 1. 打开 [Render Dashboard](https://dashboard.render.com) → **New** → **Blueprint**
-2. 连接本 GitHub 仓库，Render 会读取 `render.yaml`
-3. 确认服务计划为 **`starter`（付费）**——**持久磁盘需要付费实例**；免费 Web Service 无法挂盘
-4. 磁盘挂载到 `/data`（SQLite + 音频文件）
-5. 在 Environment 中按需填写：
-   - `CORS_ORIGIN`：你的 `https://<service>.onrender.com`（首次部署后可回填）
-   - `GEMINI_API_KEY`（可选，留空则走审核 stub）
-6. 部署完成后健康检查路径为 **`/api/v1/health`**
-7. Render 会注入 `PORT`；应用已 `listen(process.env.PORT)` 并设置 `trust proxy`
+2. 连接本 GitHub 仓库（分支 `main` 或你的发布分支）；Render 自动读取根目录 `render.yaml`
+3. 审核 Blueprint 预览：
+   - Service：`yellout`（`runtime: docker`，`plan: starter`）
+   - Disk：`yellout-data` → 挂载 `/data`（1 GB）
+   - Health check：`/api/v1/health`
+4. 在创建前填写密钥类环境变量（`sync: false`）：
+   - **`CORS_ORIGIN`**（必填建议）：部署后的 HTTPS 源，例如 `https://yellout-xxxx.onrender.com`  
+     （若首次尚不知域名：可先留空用默认反射 CORS，部署成功后到 Dashboard → Environment 填入完整 `https://…` 再 Redeploy）
+   - **`GEMINI_API_KEY`**（可选）：留空则审核走 stub，服务仍可启动
+5. **`SESSION_SECRET`** 由 Blueprint `generateValue: true` 自动生成，无需手填
+6. 点击 **Apply** 等待首次构建；日志中应出现 `YellOut API listening on http://0.0.0.0:<PORT>`
+7. 验收：
+   ```bash
+   curl -sS https://<your-service>.onrender.com/api/v1/health
+   # → {"status":"ok",...}
+   ```
+8. 浏览器打开同一 HTTPS URL，完成 onboarding 后发一条倾诉，再开无痕窗口确认同温层可见
 
-> 若不想使用磁盘：可自行改为托管 Postgres + 对象存储，并改 `DATABASE_PATH` / `UPLOAD_DIR` 实现——当前默认路径是单机 SQLite + 本地 uploads，配合 Render Disk 最简单。
+### 代理 / HTTPS 行为
+
+| 项 | 行为 |
+|----|------|
+| `PORT` | Render 注入；应用 `listen(process.env.PORT \|\| 8787)` |
+| `TRUST_PROXY=1` | `app.set('trust proxy', …)`，限流使用真实客户端 IP（`X-Forwarded-For`） |
+| 对外 URL | 始终用 Render 提供的 **HTTPS** 域名；`CORS_ORIGIN` 填该 `https://` 源 |
+
+磁盘路径（勿改除非同步改 Dockerfile）：`DATABASE_PATH=/data/yellout.db`，`UPLOAD_DIR=/data/uploads`。
 
 ---
 
