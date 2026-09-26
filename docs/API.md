@@ -5,6 +5,10 @@ Auth: `Authorization: Bearer <session_token>` (except session create & health)
 
 All timestamps are ISO-8601 UTC strings. Audio is multipart binary.
 
+**Accepted audio MIME types** (stored as-is; extension inferred):  
+`audio/webm`, `audio/mp4`, `audio/m4a`, `audio/x-m4a`, `audio/aac`, `audio/mpeg`, `audio/ogg`, `audio/wav`, `audio/3gpp`.  
+Mobile (iOS/Android Expo) typically uploads AAC in an `m4a`/`mp4` container; web browsers typically upload `webm`. Playback clients should respect the response `Content-Type`.
+
 ## Health
 
 ### `GET /health`

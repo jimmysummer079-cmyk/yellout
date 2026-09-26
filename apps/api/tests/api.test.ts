@@ -129,6 +129,29 @@ describe('YellOut API', () => {
     assert.equal(res.body.moderation, 'stub');
   });
 
+  it('accepts mobile m4a/aac uploads and serves audio/mp4', async () => {
+    const session = await request(app).post('/api/v1/session').expect(201);
+    const created = await request(app)
+      .post('/api/v1/vents')
+      .set('Authorization', `Bearer ${session.body.token}`)
+      .field('targetTag', '客户')
+      .field('duration', '2')
+      .field('voiceEffect', 'robotic')
+      .field('waveformData', JSON.stringify([0.3, 0.6]))
+      .attach('audio', Buffer.from('fake-m4a-bytes'), {
+        filename: 'vent.m4a',
+        contentType: 'audio/mp4',
+      })
+      .expect(201);
+
+    assert.ok(created.body.vent.audioUrl);
+    const audio = await request(app)
+      .get(created.body.vent.audioUrl)
+      .set('Authorization', `Bearer ${session.body.token}`)
+      .expect(200);
+    assert.match(String(audio.headers['content-type']), /audio\/mp4|audio\/m4a|octet-stream/i);
+  });
+
   it('purges expired vents and deletes audio files', async () => {
     const session = await request(app).post('/api/v1/session').expect(201);
     const created = await request(app)

@@ -83,9 +83,19 @@ export class DSPVoicePlayer {
     } else if (audioBlobOrBuffer instanceof Blob) {
       try {
         const arrayBuffer = await audioBlobOrBuffer.arrayBuffer();
-        buffer = await this.ctx.decodeAudioData(arrayBuffer);
+        // Copy buffer — decodeAudioData may detach the underlying ArrayBuffer
+        buffer = await this.ctx.decodeAudioData(arrayBuffer.slice(0));
       } catch (err) {
-        console.warn('Decode error, falling back to simulated speech:', err);
+        // m4a/AAC from mobile may fail WebAudio decode in some browsers;
+        // fall back to HTMLAudioElement so web can still play phone uploads.
+        console.warn('Decode error, trying HTMLAudioElement fallback:', err);
+        const played = await this.playViaHtmlAudio(
+          audioBlobOrBuffer,
+          durationSec,
+          onProgress,
+          onEnded
+        );
+        if (played) return;
         buffer = await createSimulatedSpeechBuffer(this.ctx, durationSec, effect);
       }
     } else {
@@ -236,6 +246,61 @@ export class DSPVoicePlayer {
 
   public isPlaying(): boolean {
     return this.isCurrentlyPlaying;
+  }
+
+  /** Fallback for codecs (e.g. AAC/m4a) that decodeAudioData cannot handle. */
+  private playViaHtmlAudio(
+    blob: Blob,
+    durationSec: number,
+    onProgress?: (progress: number) => void,
+    onEnded?: () => void
+  ): Promise<boolean> {
+    return new Promise((resolve) => {
+      try {
+        const url = URL.createObjectURL(blob);
+        const audio = new Audio(url);
+        audio.playbackRate =
+          // rough parity with DSP presets when filter graph unavailable
+          1;
+        this.isCurrentlyPlaying = true;
+        const start = performance.now();
+        const tick = () => {
+          if (!this.isCurrentlyPlaying) return;
+          const elapsed = (performance.now() - start) / 1000;
+          const progress = Math.min(1, elapsed / Math.max(1, durationSec || audio.duration || 1));
+          onProgress?.(progress);
+          if (progress >= 1) {
+            this.isCurrentlyPlaying = false;
+            URL.revokeObjectURL(url);
+            onEnded?.();
+            return;
+          }
+          this.timerId = window.requestAnimationFrame(tick);
+        };
+        audio.onended = () => {
+          this.isCurrentlyPlaying = false;
+          if (this.timerId) window.cancelAnimationFrame(this.timerId);
+          URL.revokeObjectURL(url);
+          onEnded?.();
+        };
+        audio.onerror = () => {
+          URL.revokeObjectURL(url);
+          resolve(false);
+        };
+        void audio.play().then(
+          () => {
+            this.timerId = window.requestAnimationFrame(tick);
+            resolve(true);
+          },
+          () => {
+            URL.revokeObjectURL(url);
+            resolve(false);
+          }
+        );
+      } catch {
+        resolve(false);
+      }
+    });
   }
 }
 

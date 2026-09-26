@@ -1,0 +1,66 @@
+{
+  "expo": {
+    "name": "YellOut",
+    "slug": "yellout",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "scheme": "yellout",
+    "userInterfaceStyle": "dark",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#070B14"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "app.yellout.mobile",
+      "infoPlist": {
+        "NSMicrophoneUsageDescription": "YellOut 需要麦克风权限以便你匿名倾诉与变声发泄。录音仅在你主动发送时上传；焚入虚空不会上传任何音频。",
+        "UIBackgroundModes": []
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#070B14"
+      },
+      "package": "app.yellout.mobile",
+      "permissions": [
+        "android.permission.RECORD_AUDIO",
+        "android.permission.MODIFY_AUDIO_SETTINGS"
+      ]
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "static",
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-av",
+        {
+          "microphonePermission": "YellOut 需要麦克风权限以便你匿名倾诉与变声发泄。"
+        }
+      ],
+      "expo-secure-store",
+      "expo-asset",
+      "expo-font"
+    ],
+    "experiments": {
+      "typedRoutes": true
+    },
+    "extra": {
+      "apiUrl": "https://yellout.onrender.com",
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "yellout-free-tier"
+      }
+    },
+    "owner": "yellout"
+  }
+}

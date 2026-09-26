@@ -29,7 +29,7 @@ yellout/
 ├── apps/
 │   ├── web/          # Vite + React 19 + Tailwind 4（中文 UI）
 │   ├── api/          # Express + Node SQLite（匿名会话 / 倾诉 / 互动）
-│   └── mobile/       # 预留 Expo 客户端
+│   └── mobile/       # Expo（React Native）iOS / Android 客户端
 ├── packages/shared/  # 共享类型与常量
 ├── e2e/              # Playwright 端到端测试
 ├── docs/API.md
@@ -68,11 +68,22 @@ npm install && npm run build && npm start
 # http://127.0.0.1:8787
 ```
 
+### 移动端（Expo Go，免费）
+
+```bash
+npm run build --workspace=@yellout/shared
+npm run dev:mobile
+# 或: cd apps/mobile && npx expo start
+```
+
+默认 API：`https://yellout.onrender.com`（可用 `EXPO_PUBLIC_API_URL` 覆盖）。详见 [`apps/mobile/README.md`](./apps/mobile/README.md)。
+
 验证：
 
 ```bash
 npm run typecheck
 npm test                 # API 单元/集成
+npm run test:mobile      # jest-expo（移动端 API 客户端）
 npm run test:e2e         # Playwright 端到端（对真实后端）
 npm run build
 ```
