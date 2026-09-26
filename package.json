@@ -8,9 +8,9 @@
     "apps/*"
   ],
   "scripts": {
-    "dev": "npm run dev --workspace=@yellout/api & npm run dev --workspace=@yellout/web",
+    "dev": "npm run dev:api & npm run dev:web & wait",
     "dev:web": "npm run dev --workspace=@yellout/web",
-    "dev:api": "npm run dev --workspace=@yellout/api",
+    "dev:api": "npm run build --workspace=@yellout/shared && npm run dev --workspace=@yellout/api",
     "build": "npm run build --workspace=@yellout/shared && npm run build --workspace=@yellout/api && npm run build --workspace=@yellout/web",
     "start": "npm run start --workspace=@yellout/api",
     "lint": "npm run lint --workspaces --if-present",
