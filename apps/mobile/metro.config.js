@@ -35,6 +35,8 @@ config.resolver.extraNodeModules = {
   'expo-constants': pin('expo-constants'),
   'expo-asset': pin('expo-asset'),
   'react-native-web': pin('react-native-web'),
+  // expo-router expects CJS query-string (v7); pin away from ESM-only v9.
+  'query-string': pin('query-string'),
 };
 
 // Hard-block a root-hoisted react-native tree only when it is a *different*

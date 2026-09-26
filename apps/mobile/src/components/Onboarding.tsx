@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import * as Haptics from 'expo-haptics';
+import { impact, selection } from '@/lib/haptics';
 import { colors, radii, spacing } from '@/theme/tokens';
 
 const STEPS = [
@@ -50,7 +50,7 @@ export function Onboarding({ onComplete, onOpenCrisis }: Props) {
         <View style={styles.actions}>
           <Pressable
             onPress={() => {
-              void Haptics.selectionAsync();
+              selection();
               onOpenCrisis();
             }}
             style={styles.secondary}
@@ -59,7 +59,7 @@ export function Onboarding({ onComplete, onOpenCrisis }: Props) {
           </Pressable>
           <Pressable
             onPress={() => {
-              void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+              impact();
               if (isLast) onComplete();
               else setStep((s) => s + 1);
             }}

@@ -8,7 +8,7 @@ import {
   View,
 } from 'react-native';
 import { Audio } from 'expo-av';
-import * as Haptics from 'expo-haptics';
+import { Haptics, impact, notify, selection } from '@/lib/haptics';
 import {
   DEFAULT_TARGET_TAGS,
   MAX_TARGET_TAG_LEN,
@@ -73,7 +73,7 @@ export default function VentScreen() {
       return;
     }
     try {
-      await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+      impact(Haptics.ImpactFeedbackStyle.Heavy);
       const rec = new Audio.Recording();
       await rec.prepareToRecordAsync(Audio.RecordingOptionsPresets.HIGH_QUALITY);
       await rec.startAsync();
@@ -116,7 +116,7 @@ export default function VentScreen() {
 
     if (wasBurn) {
       // Burn to Void — never upload
-      await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      notify(Haptics.NotificationFeedbackType.Success);
       setStatus('burned');
       setStatusMsg('已焚入虚空 · 零字节上传 · 释怀放下');
       const next = await refreshName();
@@ -141,7 +141,7 @@ export default function VentScreen() {
         voiceEffect: effect,
         waveformData: waveform,
       });
-      await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      notify(Haptics.NotificationFeedbackType.Success);
       setStatus('sent');
       setStatusMsg('已推送到同温层广场 · 48 小时后随风消散');
       const next = await refreshCodename();
@@ -182,7 +182,7 @@ export default function VentScreen() {
     const tag = (next || '心事').slice(0, MAX_TARGET_TAG_LEN);
     if (!customTags.includes(tag)) setCustomTags((p) => [...p, tag]);
     setTarget(tag);
-    void Haptics.selectionAsync();
+    selection();
   };
 
   return (
@@ -207,7 +207,7 @@ export default function VentScreen() {
         <Text style={styles.codename}>{session?.codename ?? '…'}</Text>
         <Pressable
           onPress={async () => {
-            void Haptics.selectionAsync();
+            selection();
             setCodename(await refreshName());
           }}
         >
@@ -221,7 +221,7 @@ export default function VentScreen() {
           <Pressable
             key={t}
             onPress={() => {
-              void Haptics.selectionAsync();
+              selection();
               setTarget(t);
             }}
             style={[styles.chip, target === t && styles.chipOn]}
@@ -240,7 +240,7 @@ export default function VentScreen() {
           <Pressable
             key={e.id}
             onPress={() => {
-              void Haptics.selectionAsync();
+              selection();
               setEffect(e.id);
             }}
             style={[styles.effect, effect === e.id && styles.effectOn]}

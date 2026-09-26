@@ -62,6 +62,6 @@ if (fs.existsSync(rootRnPkg) && !fs.existsSync(path.join(mobileModules, 'react-n
   process.exit(0);
 }
 
-for (const name of ['expo-router', 'react-native', 'react', 'babel-preset-expo']) {
+for (const name of ['expo-router', 'react-native', 'react', 'babel-preset-expo', 'query-string']) {
   linkOrCopy(name);
 }

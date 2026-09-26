@@ -10,7 +10,7 @@ import {
   View,
 } from 'react-native';
 import { Audio } from 'expo-av';
-import * as Haptics from 'expo-haptics';
+import { Haptics, impact, notify } from '@/lib/haptics';
 import type { ReactionType, VentPostDto, VoiceReplyDto } from '@yellout/shared';
 import {
   absoluteUrl,
@@ -92,14 +92,14 @@ export default function PlazaScreen() {
           setPlayingId(null);
         }
       });
-      void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      impact(Haptics.ImpactFeedbackStyle.Light);
     } catch {
       Alert.alert('播放失败', '无法加载这段语音，请稍后重试');
     }
   };
 
   const react = async (post: VentPostDto, type: ReactionType) => {
-    void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    notify(Haptics.NotificationFeedbackType.Success);
     try {
       const res = await toggleReaction(post.id, type);
       setPosts((prev) =>
@@ -134,7 +134,7 @@ export default function PlazaScreen() {
       setReplySeconds(s);
       if (s >= 10) void stopReply(postId);
     }, 250);
-    void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    impact(Haptics.ImpactFeedbackStyle.Medium);
   };
 
   const stopReply = async (postId: string) => {
