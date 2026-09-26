@@ -1,0 +1,42 @@
+# Render Blueprint — single Docker web service with persistent disk.
+# Persistent disks require a paid instance type (starter or higher).
+# Dashboard: https://dashboard.render.com → New → Blueprint
+
+services:
+  - type: web
+    name: yellout
+    runtime: docker
+    plan: starter
+    region: oregon
+    healthCheckPath: /api/v1/health
+    dockerContext: .
+    dockerfilePath: ./Dockerfile
+    autoDeploy: true
+    disk:
+      name: yellout-data
+      mountPath: /data
+      sizeGB: 1
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_PATH
+        value: /data/yellout.db
+      - key: UPLOAD_DIR
+        value: /data/uploads
+      - key: WEB_DIST
+        value: /app/apps/web/dist
+      - key: TRUST_PROXY
+        value: "1"
+      # Render injects PORT automatically; app already reads process.env.PORT
+      - key: CORS_ORIGIN
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: RATE_LIMIT_MAX
+        value: "120"
+      - key: VENT_RATE_LIMIT_MAX
+        value: "20"
+      - key: REPLY_RATE_LIMIT_MAX
+        value: "40"
+      - key: VENT_TTL_MS
+        value: "172800000"

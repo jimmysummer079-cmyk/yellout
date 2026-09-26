@@ -56,6 +56,15 @@ export function VentPage({
   const timerRef = useRef<number | null>(null);
   const startTimeRef = useRef(0);
   const touchStartYRef = useRef(0);
+  const isRecordingRef = useRef(false);
+  const isBurnModeRef = useRef(false);
+
+  useEffect(() => {
+    isRecordingRef.current = isRecording;
+  }, [isRecording]);
+  useEffect(() => {
+    isBurnModeRef.current = isBurnMode;
+  }, [isBurnMode]);
 
   useEffect(() => {
     recorderRef.current = new VoiceRecorder();
@@ -67,6 +76,30 @@ export function VentPage({
       if (timerRef.current) window.clearInterval(timerRef.current);
     };
   }, []);
+
+  // Window-level tracking so slide-up-to-burn works even when the pointer leaves the button.
+  useEffect(() => {
+    if (!isRecording) return;
+    const onMove = (e: PointerEvent) => {
+      const burn = touchStartYRef.current - e.clientY > 60;
+      setIsBurnMode((prev) => {
+        if (burn && !prev) haptic.triggerTick();
+        return burn;
+      });
+    };
+    const onUp = () => {
+      void handleStopRecord(false);
+    };
+    window.addEventListener('pointermove', onMove);
+    window.addEventListener('pointerup', onUp);
+    window.addEventListener('pointercancel', onUp);
+    return () => {
+      window.removeEventListener('pointermove', onMove);
+      window.removeEventListener('pointerup', onUp);
+      window.removeEventListener('pointercancel', onUp);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isRecording]);
 
   useEffect(() => {
     localStorage.setItem('yellout_custom_tags', JSON.stringify(customTags));
@@ -118,6 +151,8 @@ export function VentPage({
     }
 
     haptic.triggerPress();
+    isRecordingRef.current = true;
+    isBurnModeRef.current = false;
     setIsRecording(true);
     setIsBurnMode(false);
     setRecordSeconds(0);
@@ -146,15 +181,17 @@ export function VentPage({
   };
 
   const handleStopRecord = async (forcedCancel = false) => {
-    if (!isRecording) return;
+    if (!isRecordingRef.current) return;
     if (timerRef.current) {
       window.clearInterval(timerRef.current);
       timerRef.current = null;
     }
     const duration = Math.max(1, Math.floor((Date.now() - startTimeRef.current) / 1000));
-    const wasBurn = isBurnMode;
+    const wasBurn = isBurnModeRef.current;
+    isRecordingRef.current = false;
     setIsRecording(false);
     setIsBurnMode(false);
+    isBurnModeRef.current = false;
 
     if (forcedCancel) {
       recorderRef.current?.cancel();
@@ -413,17 +450,11 @@ export function VentPage({
 
           <button
             type="button"
+            id="the-big-vent-button"
             aria-label={isRecording ? '松开结束倾诉' : '长按开始倾诉'}
             disabled={uploading}
             onMouseDown={handleStartRecord}
-            onMouseUp={() => void handleStopRecord(false)}
-            onMouseMove={handleTouchMove}
-            onMouseLeave={() => {
-              if (isRecording) void handleStopRecord(true);
-            }}
             onTouchStart={handleStartRecord}
-            onTouchEnd={() => void handleStopRecord(false)}
-            onTouchMove={handleTouchMove}
             className={`w-48 h-48 sm:w-56 sm:h-56 rounded-full relative z-10 flex flex-col items-center justify-center transition-transform duration-200 active:scale-95 disabled:opacity-60 ${
               isBurnMode
                 ? 'bg-gradient-to-b from-orange-800 to-stone-950 border-4 border-orange-400 text-orange-100'

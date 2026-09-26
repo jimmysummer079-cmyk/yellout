@@ -26,7 +26,14 @@ COPY --from=build /app/packages ./packages
 COPY --from=build /app/apps/api ./apps/api
 COPY --from=build /app/apps/web/dist ./apps/web/dist
 
-RUN mkdir -p /data/uploads
+RUN mkdir -p /data/uploads \
+  && useradd --system --uid 10001 yellout \
+  && chown -R yellout:yellout /data /app
+
+USER yellout
 
 EXPOSE 8787
+HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
+  CMD node -e "fetch('http://127.0.0.1:'+(process.env.PORT||8787)+'/api/v1/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
+
 CMD ["npm", "run", "start", "--workspace=@yellout/api"]

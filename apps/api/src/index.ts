@@ -7,6 +7,7 @@ import { getDb, getUploadDir } from './db/index.js';
 import { globalRateLimit } from './middleware/rateLimit.js';
 import { sessionRouter } from './routes/session.js';
 import { repliesRouter, ventsRouter } from './routes/vents.js';
+import { createE2ERouter } from './routes/e2e.js';
 import { startExpiryScheduler } from './services/expiry.js';
 import { moderationProvider } from './services/moderation.js';
 import { bootDatabase } from './boot.js';
@@ -25,7 +26,8 @@ export function createApp() {
   getDb();
 
   const app = express();
-  app.set('trust proxy', 1);
+  // Required behind Render / reverse proxies for correct client IP + rate limits
+  app.set('trust proxy', Number(process.env.TRUST_PROXY || 1));
 
   app.use(
     cors({
@@ -49,9 +51,12 @@ export function createApp() {
   app.use('/api/v1/vents', ventsRouter);
   app.use('/api/v1/replies', repliesRouter);
 
-  const webDist = resolveFromRoot(
-    process.env.WEB_DIST || 'apps/web/dist'
-  );
+  const e2e = createE2ERouter();
+  if (e2e) {
+    app.use('/api/v1/e2e', e2e);
+  }
+
+  const webDist = resolveFromRoot(process.env.WEB_DIST || 'apps/web/dist');
   app.use(express.static(webDist));
   app.get('*', (req, res, next) => {
     if (req.path.startsWith('/api/')) {

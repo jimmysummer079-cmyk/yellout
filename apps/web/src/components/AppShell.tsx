@@ -74,10 +74,11 @@ export function AppShell({ codename, onOpenCrisis, path }: AppShellProps) {
                 haptic.triggerTick();
                 onOpenCrisis();
               }}
+              aria-label="温暖守护"
               className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium bg-amber/10 text-amber border border-amber/30 hover:bg-amber/20 transition-colors"
             >
               <HeartHandshake className="w-3.5 h-3.5" />
-              <span className="hidden xs:inline sm:inline">温暖守护</span>
+              <span className="hidden sm:inline">温暖守护</span>
             </button>
           </div>
         </div>

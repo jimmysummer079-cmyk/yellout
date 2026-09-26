@@ -10,6 +10,11 @@ coverage/
 .env.local
 data/
 uploads/
+uploads-e2e/
 *.db
 *.db-*
 .vite/
+e2e/playwright-report/
+e2e/test-results/
+playwright-report/
+test-results/
