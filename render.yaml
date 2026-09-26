@@ -1,0 +1,48 @@
+# YellOut — Render Blueprint
+# https://dashboard.render.com → New → Blueprint
+#
+# Persistent disks REQUIRE a paid instance (starter or higher).
+# Free web services cannot attach disks; do not downgrade plan after create.
+
+services:
+  - type: web
+    name: yellout
+    runtime: docker
+    plan: starter
+    region: oregon
+    healthCheckPath: /api/v1/health
+    dockerContext: .
+    dockerfilePath: ./Dockerfile
+    autoDeploy: true
+    disk:
+      name: yellout-data
+      mountPath: /data
+      sizeGB: 1
+    envVars:
+      - key: NODE_ENV
+        value: production
+      # Render injects PORT; the app listens on process.env.PORT
+      - key: DATABASE_PATH
+        value: /data/yellout.db
+      - key: UPLOAD_DIR
+        value: /data/uploads
+      - key: WEB_DIST
+        value: /app/apps/web/dist
+      - key: TRUST_PROXY
+        value: "1"
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: CORS_ORIGIN
+        # Set after first deploy to https://<your-service>.onrender.com
+        sync: false
+      - key: GEMINI_API_KEY
+        # Optional moderation; leave empty for stub
+        sync: false
+      - key: RATE_LIMIT_MAX
+        value: "120"
+      - key: VENT_RATE_LIMIT_MAX
+        value: "20"
+      - key: REPLY_RATE_LIMIT_MAX
+        value: "40"
+      - key: VENT_TTL_MS
+        value: "172800000"
