@@ -80,4 +80,4 @@ EAS 免费额度足够个人预览构建；**无需**付费 Apple Developer 即�
 
 ## Monorepo
 
-Metro 已配置 `watchFolders`、`disableHierarchicalLookup` 与 `@yellout/shared` 解析（见 `metro.config.js`）。根目录 `package.json` 的 `overrides` 将 `react-native` 锁定为 `0.76.9`（Expo SDK 52）。若 npm 将 `expo-router` 嵌套安装，`postinstall` 脚本会把关键包 symlink 到仓库根 `node_modules`，保证 `babel-preset-expo` 能内联 `EXPO_ROUTER_APP_ROOT`。共享类型走 `packages/shared` 的 `react-native` export。
+Metro 已配置 `watchFolders`、`disableHierarchicalLookup` 与 `@yellout/shared` 解析（见 `metro.config.js`）。根目录 `package.json` 的 `overrides` **仅作用于** `@yellout/mobile`（`react`/`react-dom` 18.3.1、`react-native` 0.76.9、`query-string` 7.1.3），避免把 Web 的 React 19 类型拉偏。若 npm 将 `expo-router` 嵌套安装，`postinstall` 脚本会把关键包 symlink 到仓库根 `node_modules`，保证 `babel-preset-expo` 能内联 `EXPO_ROUTER_APP_ROOT`。共享类型走 `packages/shared` 的 `react-native` export。

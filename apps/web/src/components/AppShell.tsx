@@ -101,13 +101,13 @@ export function AppShell({ codename, onOpenCrisis, path }: AppShellProps) {
               to="/"
               end
               onClick={() => haptic.triggerTick()}
-              className={({ isActive }) =>
+              className={({ isActive }: { isActive: boolean }) =>
                 `flex-1 flex flex-col items-center justify-center gap-0.5 text-[11px] transition-colors ${
                   isActive ? 'text-amber' : 'text-mist hover:text-snow'
                 }`
               }
             >
-              {({ isActive }) => (
+              {({ isActive }: { isActive: boolean }) => (
                 <>
                   <span
                     className={`p-1.5 rounded-full ${isActive ? 'bg-amber/15' : ''}`}
@@ -121,13 +121,13 @@ export function AppShell({ codename, onOpenCrisis, path }: AppShellProps) {
             <NavLink
               to="/plaza"
               onClick={() => haptic.triggerTick()}
-              className={({ isActive }) =>
+              className={({ isActive }: { isActive: boolean }) =>
                 `flex-1 flex flex-col items-center justify-center gap-0.5 text-[11px] transition-colors ${
                   isActive ? 'text-amber' : 'text-mist hover:text-snow'
                 }`
               }
             >
-              {({ isActive }) => (
+              {({ isActive }: { isActive: boolean }) => (
                 <>
                   <span
                     className={`p-1.5 rounded-full ${isActive ? 'bg-amber/15' : ''}`}
