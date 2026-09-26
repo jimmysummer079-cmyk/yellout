@@ -45,7 +45,9 @@
           "microphonePermission": "YellOut 需要麦克风权限以便你匿名倾诉与变声发泄。"
         }
       ],
-      "expo-secure-store"
+      "expo-secure-store",
+      "expo-asset",
+      "expo-font"
     ],
     "experiments": {
       "typedRoutes": true

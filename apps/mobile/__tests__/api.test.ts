@@ -1,39 +1,35 @@
 import {
-  absoluteUrl,
   fetchWithColdStart,
   formatRemainingHours,
   formatTimeAgo,
-  getApiBaseUrl,
   guessRecordingMime,
-} from '../src/lib/api';
+  joinApiUrl,
+  resolveApiBaseUrl,
+} from '../src/lib/apiCore';
 
-describe('getApiBaseUrl', () => {
-  const prev = process.env.EXPO_PUBLIC_API_URL;
-
-  afterEach(() => {
-    if (prev === undefined) delete process.env.EXPO_PUBLIC_API_URL;
-    else process.env.EXPO_PUBLIC_API_URL = prev;
-  });
-
+describe('resolveApiBaseUrl', () => {
   it('defaults to the Render production URL', () => {
-    delete process.env.EXPO_PUBLIC_API_URL;
-    expect(getApiBaseUrl()).toBe('https://yellout.onrender.com');
+    expect(resolveApiBaseUrl(undefined, undefined)).toBe('https://yellout.onrender.com');
   });
 
-  it('uses EXPO_PUBLIC_API_URL and strips trailing slash', () => {
-    process.env.EXPO_PUBLIC_API_URL = 'https://example.com/';
-    expect(getApiBaseUrl()).toBe('https://example.com');
+  it('prefers EXPO_PUBLIC_API_URL and strips trailing slash', () => {
+    expect(resolveApiBaseUrl('https://example.com/', null)).toBe('https://example.com');
+  });
+
+  it('falls back to app.json extra.apiUrl', () => {
+    expect(resolveApiBaseUrl(undefined, 'https://extra.example/')).toBe('https://extra.example');
   });
 });
 
-describe('absoluteUrl', () => {
+describe('joinApiUrl', () => {
   it('joins relative API paths', () => {
-    process.env.EXPO_PUBLIC_API_URL = 'https://yellout.onrender.com';
-    expect(absoluteUrl('/api/v1/health')).toBe('https://yellout.onrender.com/api/v1/health');
+    expect(joinApiUrl('https://yellout.onrender.com', '/api/v1/health')).toBe(
+      'https://yellout.onrender.com/api/v1/health'
+    );
   });
 
   it('passes through absolute URLs', () => {
-    expect(absoluteUrl('https://cdn.example/a.m4a')).toBe('https://cdn.example/a.m4a');
+    expect(joinApiUrl('https://x', 'https://cdn.example/a.m4a')).toBe('https://cdn.example/a.m4a');
   });
 });
 

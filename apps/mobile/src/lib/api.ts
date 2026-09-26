@@ -15,97 +15,34 @@ import {
   getStoredToken,
   setStoredSession,
 } from './storage';
+import {
+  ApiError,
+  type ColdStartPhase,
+  type FetchWithColdStartOptions,
+  fetchWithColdStart,
+  formatRemainingHours,
+  formatTimeAgo,
+  guessRecordingMime,
+  joinApiUrl,
+  resolveApiBaseUrl,
+} from './apiCore';
 
-export class ApiError extends Error {
-  status: number;
-  code?: string;
-  constructor(message: string, status: number, code?: string) {
-    super(message);
-    this.status = status;
-    this.code = code;
-  }
-}
+export {
+  ApiError,
+  fetchWithColdStart,
+  formatRemainingHours,
+  formatTimeAgo,
+  guessRecordingMime,
+};
+export type { ColdStartPhase, FetchWithColdStartOptions };
 
 export function getApiBaseUrl(): string {
-  const fromEnv = process.env.EXPO_PUBLIC_API_URL?.trim();
-  if (fromEnv) return fromEnv.replace(/\/$/, '');
-  const fromExtra = (Constants.expoConfig?.extra as { apiUrl?: string } | undefined)
-    ?.apiUrl;
-  if (fromExtra) return fromExtra.replace(/\/$/, '');
-  return 'https://yellout.onrender.com';
+  const fromExtra = (Constants.expoConfig?.extra as { apiUrl?: string } | undefined)?.apiUrl;
+  return resolveApiBaseUrl(process.env.EXPO_PUBLIC_API_URL, fromExtra);
 }
 
 export function absoluteUrl(path: string): string {
-  if (path.startsWith('http')) return path;
-  return `${getApiBaseUrl()}${path.startsWith('/') ? '' : '/'}${path}`;
-}
-
-export type ColdStartPhase = 'idle' | 'waking' | 'ready' | 'error';
-
-export interface FetchWithColdStartOptions {
-  /** Max wait while waking a free-tier host (ms). Default 90s. */
-  maxWaitMs?: number;
-  onPhase?: (phase: ColdStartPhase, detail?: string) => void;
-  signal?: AbortSignal;
-}
-
-/**
- * Fetch with retries suited to Render free-tier cold starts (30–60s wake).
- * Pure-ish helper — exported for unit tests.
- */
-export async function fetchWithColdStart(
-  input: string,
-  init: RequestInit = {},
-  opts: FetchWithColdStartOptions = {}
-): Promise<Response> {
-  const maxWaitMs = opts.maxWaitMs ?? 90_000;
-  const started = Date.now();
-  let attempt = 0;
-  let announcedWake = false;
-
-  while (true) {
-    attempt += 1;
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 25_000);
-    const onOuterAbort = () => controller.abort();
-    opts.signal?.addEventListener('abort', onOuterAbort);
-
-    try {
-      const res = await fetch(input, {
-        ...init,
-        signal: controller.signal,
-      });
-      // 502/503/504 often mean the free dyno is still waking
-      if ([502, 503, 504].includes(res.status) && Date.now() - started < maxWaitMs) {
-        if (!announcedWake) {
-          announcedWake = true;
-          opts.onPhase?.('waking', '服务器正在从休眠中唤醒…');
-        }
-        await sleep(Math.min(4000, 800 * attempt));
-        continue;
-      }
-      opts.onPhase?.('ready');
-      return res;
-    } catch (err) {
-      const elapsed = Date.now() - started;
-      if (elapsed >= maxWaitMs || opts.signal?.aborted) {
-        opts.onPhase?.('error', '无法连接服务器');
-        throw err;
-      }
-      if (!announcedWake) {
-        announcedWake = true;
-        opts.onPhase?.('waking', '免费服务器启动中，大约需要 30–60 秒…');
-      }
-      await sleep(Math.min(5000, 1000 * attempt));
-    } finally {
-      clearTimeout(timeout);
-      opts.signal?.removeEventListener('abort', onOuterAbort);
-    }
-  }
-}
-
-function sleep(ms: number) {
-  return new Promise((r) => setTimeout(r, ms));
+  return joinApiUrl(getApiBaseUrl(), path);
 }
 
 async function apiFetch<T>(
@@ -272,27 +209,4 @@ export async function reportVent(
 export async function authorizedAudioHeaders(): Promise<Record<string, string>> {
   const token = await getStoredToken();
   return token ? { Authorization: `Bearer ${token}` } : {};
-}
-
-/** Format helpers used by UI + unit tests */
-export function formatTimeAgo(iso: string, now = Date.now()): string {
-  const diff = Math.floor((now - new Date(iso).getTime()) / 1000);
-  if (diff < 60) return '刚刚';
-  if (diff < 3600) return `${Math.floor(diff / 60)}分钟前`;
-  return `${Math.floor(diff / 3600)}小时前`;
-}
-
-export function formatRemainingHours(iso: string, now = Date.now()): string {
-  const hours = Math.max(0, Math.ceil((new Date(iso).getTime() - now) / 3_600_000));
-  return `${hours}小时后焚毁`;
-}
-
-export function guessRecordingMime(uri: string): { mimeType: string; fileName: string } {
-  const lower = uri.toLowerCase();
-  if (lower.endsWith('.webm')) return { mimeType: 'audio/webm', fileName: 'vent.webm' };
-  if (lower.endsWith('.3gp') || lower.endsWith('.3gpp'))
-    return { mimeType: 'audio/3gpp', fileName: 'vent.3gp' };
-  if (lower.endsWith('.wav')) return { mimeType: 'audio/wav', fileName: 'vent.wav' };
-  // Expo HIGH_QUALITY on iOS/Android → m4a / mp4 AAC
-  return { mimeType: 'audio/mp4', fileName: 'vent.m4a' };
 }

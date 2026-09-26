@@ -68,11 +68,22 @@ npm install && npm run build && npm start
 # http://127.0.0.1:8787
 ```
 
+### 移动端（Expo Go，免费）
+
+```bash
+npm run build --workspace=@yellout/shared
+npm run dev:mobile
+# 或: cd apps/mobile && npx expo start
+```
+
+默认 API：`https://yellout.onrender.com`（可用 `EXPO_PUBLIC_API_URL` 覆盖）。详见 [`apps/mobile/README.md`](./apps/mobile/README.md)。
+
 验证：
 
 ```bash
 npm run typecheck
 npm test                 # API 单元/集成
+npm run test:mobile      # jest-expo（移动端 API 客户端）
 npm run test:e2e         # Playwright 端到端（对真实后端）
 npm run build
 ```
